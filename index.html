@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Player Sofisticado - Rafael Costa</title>
+<title>Player Rafael Costa</title>
 <style>
 :root {
   --bg:#1a1a1a;
@@ -35,12 +35,24 @@ body {
 }
 
 .player-header {
-  padding:16px;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-  font-weight:600;
-  font-size:16px;
   text-align:center;
+  padding:16px;
+  font-size:16px;
+  font-weight:600;
+  border-bottom:1px solid rgba(255,255,255,0.1);
   background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
+}
+
+.cover {
+  width:100%;
+  aspect-ratio:1/1;
+  background:#444;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#ccc;
+  font-size:20px;
+  font-weight:bold;
 }
 
 .track-list {
@@ -49,16 +61,27 @@ body {
 }
 
 .track {
+  display:flex;
+  align-items:center;
   padding:10px 16px;
   border-bottom:1px solid rgba(255,255,255,0.05);
   cursor:pointer;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+}
+
+.track img {
+  width:50px;
+  height:50px;
+  border-radius:8px;
+  margin-right:12px;
+  object-fit:cover;
 }
 
 .track.active {
   background:rgba(199,54,54,0.2);
+}
+
+.track-title {
+  flex:1;
 }
 
 .controls {
@@ -125,6 +148,7 @@ body {
 @media (max-width:360px){
   .player-header{ font-size:14px; padding:12px; }
   .controls button{ width:36px; height:36px; font-size:16px; }
+  .track img{ width:40px; height:40px; margin-right:8px;}
 }
 </style>
 </head>
@@ -133,8 +157,10 @@ body {
 <div class="player-container">
   <div class="player-header">Composições Rafael Costa</div>
 
+  <div class="cover">Capa</div>
+
   <div class="track-list" id="trackList">
-    <!-- Faixas serão inseridas via JS -->
+    <!-- Faixas serão preenchidas via JS -->
   </div>
 
   <div class="controls">
@@ -152,12 +178,11 @@ body {
 </div>
 
 <script>
-// Lista de faixas (pode ser local ou URL)
 const tracks = [
-  { title: 'Faixa 1', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
-  { title: 'Faixa 2', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
-  { title: 'Faixa 3', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
-  { title: 'Faixa 4', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' }
+  { title: "O que eu não fiz (Piseiro)", src: "https://soundcloud.com/rafael-costa-709828440/oque-eu-nao-fiz-piseiro?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=64f7fda9d89c4d5180c8c313187237d0&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" },
+  { title: "A culpa é da embasa (Arrocha)", src: "https://soundcloud.com/rafael-costa-709828440/a-culpa-e-da-embasa-arrocha?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=2a6be1e6da934e60995c1909afea055e&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" },
+  { title: "Seu beijo me entorpeceu", src: "https://soundcloud.com/rafael-costa-709828440/seu-beijo-me-entorpeceu?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=77fab0ff78184c738acad0a3078f4bfa&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" },
+  { title: "Abaixa o radio motorista (Arrocha)", src: "https://soundcloud.com/rafael-costa-709828440/abaixa-o-radio-motorista?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=fac0e155e2344ea085697e6361f98ed7&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" }
 ];
 
 let currentTrack = 0;
@@ -169,15 +194,24 @@ const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 const progressEl = document.getElementById('progress');
 
-// Cria elemento de áudio
 const audio = new Audio();
 audio.src = tracks[currentTrack].src;
 
-// Preenche lista de faixas
+// Preenche lista de faixas com miniaturas genéricas
 tracks.forEach((track, i) => {
   const div = document.createElement('div');
   div.className = 'track';
-  div.textContent = track.title;
+  div.dataset.index = i;
+
+  const img = document.createElement('img');
+  img.src = 'https://via.placeholder.com/50?text=🎵'; // placeholder da capa
+  div.appendChild(img);
+
+  const title = document.createElement('div');
+  title.className = 'track-title';
+  title.textContent = track.title;
+  div.appendChild(title);
+
   div.addEventListener('click', () => playTrack(i));
   trackListEl.appendChild(div);
 });
@@ -223,7 +257,7 @@ nextBtn.addEventListener('click', nextTrack);
 prevBtn.addEventListener('click', prevTrack);
 
 audio.addEventListener('timeupdate', () => {
-  progressEl.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+  if(audio.duration) progressEl.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
 });
 
 audio.addEventListener('ended', nextTrack);
