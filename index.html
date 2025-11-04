@@ -3,17 +3,45 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SoundCloud Player - Sofisticado</title>
+  <title>SoundCloud Player - Sofisticado (Responsivo)</title>
   <style>
     /* Reset simples */
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;background:linear-gradient(180deg,#0f0f10 0%, #121217 100%);color:#e9e9ea}
+    html,body{
+      height:100%;
+      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background:linear-gradient(180deg,#0f0f10 0%, #121217 100%);
+      color:#e9e9ea;
+    }
 
     /* Container do player */
-    .sc-player-wrap{max-width:920px;margin:40px auto;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,0.6);display:flex;gap:20px;align-items:center}
+    .sc-player-wrap{
+      max-width:920px;
+      margin:40px auto;
+      padding:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:16px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.6);
+      display:flex;
+      gap:20px;
+      align-items:center;
+      transition:all .3s ease;
+      min-height:160px;
+    }
 
     /* Capa e info */
-    .sc-art{width:220px;height:220px;border-radius:12px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1b1b1f 0%, #151418 100%);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03)}
+    .sc-art{
+      width:220px;
+      height:220px;
+      border-radius:12px;
+      overflow:hidden;
+      flex-shrink:0;
+      background:linear-gradient(135deg,#1b1b1f 0%, #151418 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(255,255,255,0.03);
+    }
     .sc-art img{width:100%;height:100%;object-fit:cover;display:block}
 
     .sc-info{flex:1;display:flex;flex-direction:column;gap:12px}
@@ -21,7 +49,7 @@
     .artist{font-size:13px;color:#bdbfc6}
 
     /* Controles */
-    .controls{display:flex;align-items:center;gap:14px}
+    .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .btn{background:transparent;border:0;padding:10px;border-radius:10px;cursor:pointer;display:inline-grid;place-items:center;transition:all .18s ease;color:#fff}
     .btn:hover{transform:translateY(-3px);filter:brightness(1.1)}
 
@@ -33,7 +61,8 @@
     .time{font-size:12px;color:#bdbfc6;width:48px;text-align:center}
     .progress{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.03));position:relative;cursor:pointer}
     .progress > .bar{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ff8b8b,#c73636);box-shadow:0 6px 18px rgba(199,54,54,0.16)}
-    .progress .thumb{position:absolute;right:0;top:50%;transform:translate(50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.6);opacity:0;transition:opacity .12s}
+    /* thumb usa left para controlar pela função updateProgress() */
+    .progress .thumb{position:absolute;left:0;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.6);opacity:0;transition:opacity .12s}
     .progress:hover .thumb{opacity:1}
 
     /* Volume */
@@ -44,12 +73,57 @@
     /* Micro-attribution (copy of original, estilizada) */
     .attribution{margin-top:10px;font-size:11px;color:#9fa3ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* Responsivo */
-    @media (max-width:760px){
-      .sc-player-wrap{flex-direction:column;max-width:420px;padding:18px}
-      .sc-art{width:160px;height:160px}
-      .play{width:56px;height:56px}
+    /* ===================== */
+    /* 🎯 RESPONSIVIDADE 🎯 */
+    /* ===================== */
+@media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    display: flex;
+    align-items: center;       /* Alinha verticalmente */
+    justify-content: center;   /* Alinha horizontalmente */
+  }
+    @media (max-width: 900px){
+      
+      .sc-player-wrap{
+        flex-direction:column;
+        align-items:stretch;
+        padding:24px 18px;
+
+      }
+      .sc-art{
+        width:180px;
+        height:180px;
+        margin:0 auto;
+      }
+      .sc-info{text-align:center}
+      .controls{flex-direction:column;align-items:center}
     }
+
+    @media (max-width: 600px){
+      .sc-player-wrap{padding:18px;margin:20px}
+      .sc-art{width:150px;height:150px}
+      .title{font-size:18px}
+      .artist{font-size:12px}
+      .controls{gap:20px}
+      .volume{width:80px}
+      .play{width:54px;height:54px}
+       align-items: center;       /* Alinha verticalmente */
+       justify-content: center;   /* Alinha horizontalmente */
+    }
+
+    @media (max-width: 400px){
+      .sc-player-wrap{margin:10px;padding:16px;border-radius:10px}
+      .sc-art{width:120px;height:120px}
+      .title{font-size:16px}
+      .volume{display:none} /* Esconde volume no mobile para simplificar */
+       align-items: center;       /* Alinha verticalmente */
+       justify-content: center;   /* Alinha horizontalmente */
+    }
+
+    /* Pequenas melhorias de acessibilidade visual */
+    a{color:inherit}
+    button:focus, .progress:focus{outline:2px solid rgba(199,54,54,0.25);outline-offset:2px}
   </style>
 </head>
 <body>
@@ -123,7 +197,9 @@
   </div>
 
   <!-- Widget oficial do SoundCloud (iframe) - mantém o iframe original como fonte de áudio -->
-  <iframe id="sc-player-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2108588519&color=%23c73636&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true" style="display:none"></iframe>
+  <iframe id="sc-player-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+    src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2108588519&color=%23c73636&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
+    style="display:none"></iframe>
 
   <script src="https://w.soundcloud.com/player/api.js"></script>
   <script>
@@ -204,6 +280,7 @@
     function updateProgress(){
       const pct = duration ? Math.min(1, position/duration) : 0;
       bar.style.width = (pct*100)+'%';
+      // thumb centralizado no ponto (usa left)
       thumb.style.left = (pct*100)+'%';
     }
 
