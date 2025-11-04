@@ -27,6 +27,7 @@
       font-size:15px;
       font-weight:500;
       z-index:9999;
+      display:none;
       box-shadow:0 4px 16px rgba(0,0,0,0.4);
       line-height:1.4;
     }
@@ -119,9 +120,9 @@
 </head>
 <body>
 
-  <!-- Alerta Instagram fixo no topo -->
+  <!-- Alerta Instagram -->
   <div id="insta-alert">
-    ⚠️ Você está abrindo este link dentro do Instagram.<br>
+    Você está abrindo este link dentro do Instagram.<br>
     Toque nos três pontinhos ⋯ e escolha <strong>“Abrir no navegador”</strong> para ouvir o player corretamente 🎵
     <button onclick="document.getElementById('insta-alert').style.display='none'">Fechar</button>
   </div>
@@ -188,7 +189,14 @@
 
   <script src="https://w.soundcloud.com/player/api.js"></script>
   <script>
-    // Player JS original (mantido integralmente)
+    // Alerta Instagram
+    if (navigator.userAgent.includes("Instagram")) {
+      const alertBox = document.getElementById('insta-alert');
+      alertBox.style.display = 'block';
+      setTimeout(() => alertBox.style.display = 'none', 12000);
+    }
+
+    // Player JS original (reduzido aqui para clareza, igual ao seu)
     const iframe = document.getElementById('sc-player-iframe');
     const widget = SC.Widget(iframe);
     const btnPlay=document.getElementById('btn-play');
@@ -248,6 +256,5 @@
       else{widget.setVolume(80);vbar.style.width='80%';isMuted=false;}
     });
   </script>
-
 </body>
 </html>
