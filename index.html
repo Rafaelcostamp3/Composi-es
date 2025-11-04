@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portifólio de composições - Rafael Costa</title>
+<title>Player Custom Rafael Costa</title>
 <style>
 :root {
   --bg:#1a1a1a;
@@ -43,18 +43,22 @@ body {
   background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
 }
 
-/* wrapper com rolagem horizontal no mobile */
-.player-wrap {
-  width:100%;
-  overflow-x:auto;  /* permite rolagem horizontal */
-  -webkit-overflow-scrolling: touch; /* smooth scroll no iOS */
+.track-list {
+  max-height:300px;
+  overflow-y:auto;
 }
 
-.player-wrap iframe {
-  width:600px; /* largura maior que a box para permitir scroll */
-  height:300px;
-  border:none;
-  display:block;
+.track {
+  padding:10px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.track.active {
+  background:rgba(199,54,54,0.2);
 }
 
 .controls {
@@ -96,9 +100,10 @@ body {
 
 .progress-bar-inner {
   height:100%;
-  width:50%;
+  width:0%;
   background:var(--accent);
   border-radius:3px;
+  transition: width 0.1s linear;
 }
 
 .credit {
@@ -128,18 +133,17 @@ body {
 <div class="player-container">
   <div class="player-header">Composições Rafael Costa</div>
 
-  <div class="player-wrap">
-    <iframe scrolling="no" allow="autoplay"
-      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2108588519&color=%23c73636&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true">
-    </iframe>
+  <div class="track-list" id="trackList">
+    <!-- Lista de faixas será preenchida via JS -->
   </div>
 
   <div class="controls">
-    <button>&#9658;</button>
+    <button id="prev">&#9664;</button>
+    <button id="playPause">&#9658;</button>
+    <button id="next">&#9654;</button>
     <div class="progress-bar">
-      <div class="progress-bar-inner"></div>
+      <div class="progress-bar-inner" id="progress"></div>
     </div>
-    <button>&#10074;&#10074;</button>
   </div>
 
   <div class="credit">
@@ -148,6 +152,113 @@ body {
     <a href="https://soundcloud.com/rafael-costa-709828440/sets/composicoes-rafael-costa" target="_blank" rel="noopener">Composições Rafael Costa</a>
   </div>
 </div>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+const playlistUrl = 'https://api.soundcloud.com/playlists/2108588519?client_id=YOUR_CLIENT_ID';
+
+// Para funcionar, você precisa de um CLIENT_ID SoundCloud. Substitua YOUR_CLIENT_ID pelo seu.
+
+let trackData = [];
+let currentTrackIndex = 0;
+let isPlaying = false;
+
+const trackListEl = document.getElementById('trackList');
+const playPauseBtn = document.getElementById('playPause');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const progressEl = document.getElementById('progress');
+
+let iframeEl, widget;
+
+// Carrega dados da playlist
+async function loadPlaylist() {
+  const res = await fetch(playlistUrl);
+  const data = await res.json();
+  trackData = data.tracks;
+
+  trackListEl.innerHTML = trackData.map((track, index) => `
+    <div class="track" data-index="${index}">
+      ${track.title}
+    </div>
+  `).join('');
+
+  trackListEl.querySelectorAll('.track').forEach(el => {
+    el.addEventListener('click', () => playTrack(parseInt(el.dataset.index)));
+  });
+
+  initWidget();
+}
+
+// Inicializa o widget do SoundCloud para o track atual
+function initWidget() {
+  iframeEl = document.createElement('iframe');
+  iframeEl.style.width = '100%';
+  iframeEl.style.height = '0px'; // invisível, só usamos o áudio
+  iframeEl.style.border = 'none';
+  document.body.appendChild(iframeEl);
+  widget = SC.Widget(iframeEl);
+  playTrack(0);
+}
+
+// Tocar uma faixa específica
+function playTrack(index) {
+  currentTrackIndex = index;
+  const track = trackData[index];
+  trackListEl.querySelectorAll('.track').forEach(el => el.classList.remove('active'));
+  trackListEl.querySelector(`.track[data-index="${index}"]`).classList.add('active');
+
+  widget.load(track.uri, { auto_play:true });
+  isPlaying = true;
+  updatePlayButton();
+}
+
+// Play/Pause
+function togglePlay() {
+  if (!widget) return;
+  widget.isPaused(paused => {
+    if(paused) widget.play();
+    else widget.pause();
+    isPlaying = !paused;
+    updatePlayButton();
+  });
+}
+
+function updatePlayButton() {
+  playPauseBtn.textContent = isPlaying ? '❚❚' : '▶';
+}
+
+// Próxima faixa
+function nextTrack() {
+  let nextIndex = (currentTrackIndex + 1) % trackData.length;
+  playTrack(nextIndex);
+}
+
+// Faixa anterior
+function prevTrack() {
+  let prevIndex = (currentTrackIndex - 1 + trackData.length) % trackData.length;
+  playTrack(prevIndex);
+}
+
+// Atualiza barra de progresso
+function updateProgress() {
+  if (!widget) return;
+  widget.getPosition(pos => {
+    widget.getDuration(dur => {
+      progressEl.style.width = `${(pos/dur)*100}%`;
+    });
+  });
+  requestAnimationFrame(updateProgress);
+}
+
+// Eventos dos botões
+playPauseBtn.addEventListener('click', togglePlay);
+nextBtn.addEventListener('click', nextTrack);
+prevBtn.addEventListener('click', prevTrack);
+
+loadPlaylist();
+updateProgress();
+</script>
 
 </body>
 </html>
