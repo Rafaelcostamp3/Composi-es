@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SoundCloud Player - Sofisticado (Responsivo)</title>
   <style>
+    /* Reset simples */
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{
       height:100%;
@@ -13,6 +14,7 @@
       color:#e9e9ea;
     }
 
+    /* Container do player */
     .sc-player-wrap{
       max-width:920px;
       margin:40px auto;
@@ -27,6 +29,7 @@
       min-height:160px;
     }
 
+    /* Capa e info */
     .sc-art{
       width:220px;
       height:220px;
@@ -45,6 +48,7 @@
     .title{font-size:20px;font-weight:600;letter-spacing:0.2px}
     .artist{font-size:13px;color:#bdbfc6}
 
+    /* Controles */
     .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .btn{background:transparent;border:0;padding:10px;border-radius:10px;cursor:pointer;display:inline-grid;place-items:center;transition:all .18s ease;color:#fff}
     .btn:hover{transform:translateY(-3px);filter:brightness(1.1)}
@@ -52,25 +56,40 @@
     .play{width:60px;height:60px;background:linear-gradient(135deg,#c73636,#ff6b6b);box-shadow:0 8px 24px rgba(199,54,54,0.22);border-radius:14px}
     .mini{width:42px;height:42px;background:rgba(255,255,255,0.02);border-radius:10px}
 
+    /* Barra de progresso */
     .progress-wrap{width:100%;display:flex;align-items:center;gap:12px}
     .time{font-size:12px;color:#bdbfc6;width:48px;text-align:center}
     .progress{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.03));position:relative;cursor:pointer}
     .progress > .bar{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ff8b8b,#c73636);box-shadow:0 6px 18px rgba(199,54,54,0.16)}
+    /* thumb usa left para controlar pela função updateProgress() */
     .progress .thumb{position:absolute;left:0;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.6);opacity:0;transition:opacity .12s}
     .progress:hover .thumb{opacity:1}
 
+    /* Volume */
     .volume-wrap{display:flex;align-items:center;gap:8px}
     .volume{width:110px;height:6px;border-radius:99px;background:rgba(255,255,255,0.03);position:relative;cursor:pointer}
     .volume > .vbar{height:100%;width:60%;border-radius:99px;background:linear-gradient(90deg,#ffd7d7,#c73636)}
 
+    /* Micro-attribution (copy of original, estilizada) */
     .attribution{margin-top:10px;font-size:11px;color:#9fa3ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* RESPONSIVIDADE */
+    /* ===================== */
+    /* 🎯 RESPONSIVIDADE 🎯 */
+    /* ===================== */
+@media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    display: flex;
+    align-items: center;       /* Alinha verticalmente */
+    justify-content: center;   /* Alinha horizontalmente */
+  }
     @media (max-width: 900px){
+      
       .sc-player-wrap{
         flex-direction:column;
         align-items:stretch;
         padding:24px 18px;
+
       }
       .sc-art{
         width:180px;
@@ -89,15 +108,20 @@
       .controls{gap:20px}
       .volume{width:80px}
       .play{width:54px;height:54px}
+       align-items: center;       /* Alinha verticalmente */
+       justify-content: center;   /* Alinha horizontalmente */
     }
 
     @media (max-width: 400px){
       .sc-player-wrap{margin:10px;padding:16px;border-radius:10px}
       .sc-art{width:120px;height:120px}
       .title{font-size:16px}
-      .volume{display:none}
+      .volume{display:none} /* Esconde volume no mobile para simplificar */
+       align-items: center;       /* Alinha verticalmente */
+       justify-content: center;   /* Alinha horizontalmente */
     }
 
+    /* Pequenas melhorias de acessibilidade visual */
     a{color:inherit}
     button:focus, .progress:focus{outline:2px solid rgba(199,54,54,0.25);outline-offset:2px}
   </style>
@@ -106,6 +130,7 @@
 
   <div class="sc-player-wrap" role="region" aria-label="SoundCloud player">
     <div class="sc-art" id="sc-art">
+      <!-- Capa carregada dinamicamente -->
       <svg width="90" height="90" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="opacity:.06">
         <path d="M12 2C7 2 3.4 5.6 3.4 10.2c0 3 1.7 5.6 4.4 7.1L12 22l4.2-4.7c2.7-1.5 4.4-4.1 4.4-7.1C20.6 5.6 17 2 12 2z" fill="currentColor"/>
       </svg>
@@ -120,28 +145,31 @@
       <div class="controls" style="margin-top:6px">
         <div style="display:flex;align-items:center;gap:12px;flex-direction:column">
           <button class="btn play" id="btn-play" aria-label="Play/Pause">
+            <!-- Play icon -->
             <svg id="icon-play" viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true">
               <path d="M5 3v18l15-9L5 3z" fill="#fff"/>
             </svg>
+            <!-- Pause icon (hidden by default) -->
             <svg id="icon-pause" viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true" style="display:none">
               <path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="#fff"/>
             </svg>
           </button>
 
           <div style="display:flex;gap:8px">
-            <button class="btn mini prev" id="btn-prev">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
+            <button class="btn mini prev">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"></polyline>
+  </svg>
+</button>
 
-            <button class="btn mini next" id="btn-next">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 6 15 12 9 18"></polyline>
-              </svg>
-            </button>
+<!-- Botão próxima (seta para a DIREITA) -->
+<button class="btn mini next">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="9 6 15 12 9 18"></polyline>
+  </svg>
+</button>
           </div>
         </div>
 
@@ -167,38 +195,23 @@
 
             <div style="text-align:right">
               <div style="font-size:12px;color:#bdbfc6">Playlist SoundCloud</div>
-              <div class="attribution"><a id="sc-user-link" href="#" target="_blank" style="color:inherit;text-decoration:none;opacity:.84">Rafael Costa · Composições Rafael Costa</a></div>
+              <div class="attribution"><a id="sc-user-link" href="#" target="_blank" style="color:inherit;text-decoration:none;opacity:.84">Rafael Costa · Composições Rafael costa</a></div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- Widget oficial do SoundCloud (iframe) - mantém o iframe original como fonte de áudio -->
   <iframe id="sc-player-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
     src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2108588519&color=%23c73636&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
     style="display:none"></iframe>
 
   <script src="https://w.soundcloud.com/player/api.js"></script>
-
   <script>
-    /* =========================================================
-       🚀 Solução 1: Detectar Instagram e redirecionar
-    ========================================================= */
-    if (navigator.userAgent.includes("Instagram")) {
-      // Tenta abrir no navegador padrão (Chrome ou Safari)
-      const current = encodeURIComponent(window.location.href);
-      window.location.href = "googlechrome://open-url?url=" + current;
-
-      // Fallback: alerta amigável se não abrir
-      setTimeout(() => {
-        alert("⚠️ Para ouvir a música, abra este link no seu navegador (Safari ou Chrome) 🎧");
-      }, 1500);
-    }
-
-    /* =========================================================
-       🎵 Player SoundCloud Customizado
-    ========================================================= */
+    // Elementos
     const iframe = document.getElementById('sc-player-iframe');
     const widget = SC.Widget(iframe);
     const btnPlay = document.getElementById('btn-play');
@@ -219,43 +232,139 @@
     const btnMute = document.getElementById('btn-mute');
     const scUserLink = document.getElementById('sc-user-link');
 
-    let duration = 0, position = 0, isPlaying = false, isMuted = false;
+    // Estado
+    let duration = 0;
+    let position = 0;
+    let isPlaying = false;
+    let isMuted = false;
 
-    function fmt(ms){ const s=Math.floor(ms/1000);const m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0'); }
+    function fmt(ms){
+      if(!ms && ms !== 0) return '0:00';
+      const s = Math.floor(ms/1000);
+      const m = Math.floor(s/60);
+      const sec = String(s%60).padStart(2,'0');
+      return m+':'+sec;
+    }
 
     widget.bind(SC.Widget.Events.READY, function(){
-      widget.getDuration(d=>{ duration=d||0; timeTotal.textContent=fmt(duration); });
+      // Pegar informações iniciais
+      widget.getDuration(function(d){ duration = d || 0; timeTotal.textContent = fmt(duration); });
+      widget.getPosition(function(p){ position = p || 0; timeCurrent.textContent = fmt(position); updateProgress(); });
+
+      // Mostrar dados do som atual quando trocar
       widget.bind(SC.Widget.Events.PLAY, function(){
-        isPlaying=true; toggleIcons();
+        isPlaying = true; toggleIcons();
         widget.getCurrentSound(function(sound){
           if(sound){
-            scTitle.textContent=sound.title||'Untitled';
-            scArtist.textContent=sound.user?.username||'';
-            scUserLink.href=sound.user?.permalink_url||'#';
-            const art=(sound.artwork_url||sound.user?.avatar_url)?.replace('-large','-t500x500');
-            if(art) scArt.innerHTML='<img src="'+art+'" alt="Capa">';
+            scTitle.textContent = sound.title || 'Untitled';
+            scArtist.textContent = (sound.user && sound.user.username) ? sound.user.username : '';
+            scUserLink.href = sound.user ? sound.user.permalink_url : '#';
+            const art = (sound.artwork_url || sound.user && sound.user.avatar_url) ? (sound.artwork_url || sound.user.avatar_url).replace('-large','-t500x500') : '';
+            if(art){
+              scArt.innerHTML = '<img src="'+art+'" alt="Capa">';
+            }
           }
         });
       });
-      widget.bind(SC.Widget.Events.PAUSE, ()=>{isPlaying=false;toggleIcons();});
-      widget.bind(SC.Widget.Events.FINISH, ()=>{isPlaying=false;toggleIcons();});
-      widget.bind(SC.Widget.Events.PLAY_PROGRESS, e=>{
-        position=e.currentPosition||0; duration=e.duration||duration;
-        timeCurrent.textContent=fmt(position);
-        timeTotal.textContent=fmt(duration);
+
+      widget.bind(SC.Widget.Events.PAUSE, function(){ isPlaying = false; toggleIcons(); });
+
+      widget.bind(SC.Widget.Events.FINISH, function(){ isPlaying = false; toggleIcons(); });
+
+      // Atualizar posição enquanto toca
+      widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e){
+        position = e.currentPosition || 0;
+        duration = e.duration || duration;
+        timeCurrent.textContent = fmt(position);
+        timeTotal.textContent = fmt(duration);
         updateProgress();
+      });
+
+      // Atualizar duração quando disponível
+      widget.getDuration(function(d){ duration = d || duration; timeTotal.textContent = fmt(duration); updateProgress(); });
+
+    });
+
+    function updateProgress(){
+      const pct = duration ? Math.min(1, position/duration) : 0;
+      bar.style.width = (pct*100)+'%';
+      // thumb centralizado no ponto (usa left)
+      thumb.style.left = (pct*100)+'%';
+    }
+
+    function toggleIcons(){
+      if(isPlaying){ iconPlay.style.display='none'; iconPause.style.display='block'; }
+      else{ iconPlay.style.display='block'; iconPause.style.display='none'; }
+    }
+
+    // Play / Pause
+    btnPlay.addEventListener('click', function(){
+      widget.isPaused(function(paused){
+        if(paused) widget.play(); else widget.pause();
       });
     });
 
-    function updateProgress(){ const pct=duration?Math.min(1,position/duration):0; bar.style.width=(pct*100)+'%'; thumb.style.left=(pct*100)+'%'; }
-    function toggleIcons(){ iconPlay.style.display=isPlaying?'none':'block'; iconPause.style.display=isPlaying?'block':'none'; }
+    // Prev / Next
+    btnPrev.addEventListener('click', function(){ widget.prev(); });
+    btnNext.addEventListener('click', function(){ widget.next(); });
 
-    btnPlay.onclick=()=>widget.isPaused(p=>p?widget.play():widget.pause());
-    btnPrev.onclick=()=>widget.prev();
-    btnNext.onclick=()=>widget.next();
-    progress.onclick=e=>{const r=progress.getBoundingClientRect();widget.seekTo(Math.round((e.clientX-r.left)/r.width*duration));};
-    volume.onclick=e=>{const r=volume.getBoundingClientRect();const pct=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));vbar.style.width=(pct*100)+'%';widget.setVolume(Math.round(pct*100));isMuted=pct===0;};
-    btnMute.onclick=()=>{if(!isMuted){widget.setVolume(0);vbar.style.width='0%';isMuted=true;}else{widget.setVolume(80);vbar.style.width='80%';isMuted=false;}};
+    // Barra de progresso: click para seek
+    progress.addEventListener('click', function(e){
+      const rect = progress.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = x/rect.width;
+      const seekTo = Math.round(pct * duration);
+      widget.seekTo(seekTo);
+    });
+
+    // Volume control: click to set
+    volume.addEventListener('click', function(e){
+      const rect = volume.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(1, x/rect.width));
+      vbar.style.width = (pct*100)+'%';
+      widget.setVolume(Math.round(pct*100));
+      isMuted = pct === 0;
+    });
+
+    // Mute
+    btnMute.addEventListener('click', function(){
+      if(!isMuted){ widget.setVolume(0); vbar.style.width='0%'; isMuted=true; }
+      else{ widget.setVolume(80); vbar.style.width='80%'; isMuted=false; }
+    });
+
+    // Inicializa volume visual
+    widget.getVolume(function(vol){
+      const pct = (typeof vol === 'number') ? vol/100 : 0.8;
+      vbar.style.width = (pct*100)+'%';
+    });
+
+    // Acessibilidade: teclas na barra
+    progress.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
+        e.preventDefault();
+        const delta = (e.key === 'ArrowRight') ? 5000 : -5000; // 5s
+        widget.getPosition(function(pos){ widget.seekTo(Math.max(0,pos+delta)); });
+      }
+    });
+
+    // Tenta carregar meta do primeiro som
+    widget.bind(SC.Widget.Events.READY, function(){
+      widget.getCurrentSound(function(sound){
+        if(sound){
+          scTitle.textContent = sound.title || 'Playlist';
+          scArtist.textContent = sound.user ? sound.user.username : '';
+          const art = (sound.artwork_url || sound.user && sound.user.avatar_url) ? (sound.artwork_url || sound.user.avatar_url).replace('-large','-t500x500') : '';
+          if(art){ scArt.innerHTML = '<img src="'+art+'" alt="Capa">'; }
+        }
+      });
+    });
+
+    // Segurança: caso o widget demore, mostrar o iframe básico (fallback)
+    setTimeout(()=>{
+      widget.getDuration(function(d){ if(!d) document.getElementById('sc-player-iframe').style.display = 'block'; });
+    },3000);
+
   </script>
 </body>
 </html>
