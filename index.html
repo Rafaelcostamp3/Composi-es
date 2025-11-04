@@ -256,33 +256,40 @@
       else{widget.setVolume(80);vbar.style.width='80%';isMuted=false;}
     });
   </script>
-<!-- 🚨 ALERTA Instagram -->
 <script>
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  if (/Instagram/i.test(ua)) {
-    const aviso = document.createElement("div");
-    aviso.innerHTML = `
-      ⚠️ <b>Para ouvir corretamente:</b><br>
-      Toque nos três pontinhos (⋮) e escolha <b>"Abrir no navegador"</b>.
-    `;
-    Object.assign(aviso.style, {
-      position: "fixed",
-      top: "0",
-      left: "0",
-      width: "100%",
-      background: "rgba(255, 230, 150, 0.95)",
-      color: "#222",
-      textAlign: "center",
-      padding: "12px",
-      fontFamily: "sans-serif",
-      fontSize: "14px",
-      zIndex: "9999",
-      borderBottom: "1px solid rgba(0,0,0,0.1)",
-    });
-    document.body.appendChild(aviso);
-  }
+  document.addEventListener("DOMContentLoaded", function() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isInstagram = ua.includes("Instagram");
+    const isFBApp = ua.includes("FBAN") || ua.includes("FBAV");
+    const isMessenger = ua.includes("Messenger");
+
+    if (isInstagram || isFBApp || isMessenger) {
+      const aviso = document.createElement("div");
+      aviso.innerHTML = `
+        ⚠️ <b>Para ouvir corretamente:</b><br>
+        Toque nos três pontinhos (⋮) e escolha <b>"Abrir no navegador"</b>.
+      `;
+      Object.assign(aviso.style, {
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100%",
+        background: "rgba(255, 230, 150, 0.95)",
+        color: "#222",
+        textAlign: "center",
+        padding: "14px",
+        fontFamily: "system-ui, sans-serif",
+        fontSize: "15px",
+        lineHeight: "1.4",
+        zIndex: "999999",
+        borderBottom: "1px solid rgba(0,0,0,0.15)",
+      });
+      document.body.appendChild(aviso);
+    }
+  });
 </script>
 
 </body>
 </html>
+
 
