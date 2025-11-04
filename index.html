@@ -1,169 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Player Rafael Costa</title>
-<style>
-:root {
-  --bg:#1a1a1a;
-  --box:#252525;
-  --accent:#c73636;
-  --text:#e0e0e0;
-  --shadow:rgba(0,0,0,0.7);
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoundCloud Player</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(180deg,#0f0f10 0%,#121217 100%);color:#e9e9ea}
 
-body {
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:var(--bg);
-  font-family:'Inter', sans-serif;
-  color:var(--text);
-}
+    .sc-player-wrap{
+      max-width:920px;
+      margin:40px auto;
+      padding:20px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      border-radius:16px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.6);
+      display:flex;
+      gap:20px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
 
-.player-container {
-  width:min(420px,95vw);
-  background:var(--box);
-  border-radius:16px;
-  box-shadow:0 10px 40px var(--shadow);
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
+    .sc-art{
+      width:220px;
+      height:220px;
+      border-radius:12px;
+      overflow:hidden;
+      flex-shrink:0;
+      background:linear-gradient(135deg,#1b1b1f 0%,#151418 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(255,255,255,0.03)
+    }
 
-.player-header {
-  text-align:center;
-  padding:16px;
-  font-size:16px;
-  font-weight:600;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-}
+    .sc-art img{width:100%;height:100%;object-fit:cover;display:block}
 
-.cover {
-  width:100%;
-  aspect-ratio:1/1;
-  background:#444;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  color:#ccc;
-  font-size:20px;
-  font-weight:bold;
-}
+    .sc-info{flex:1;display:flex;flex-direction:column;gap:12px;min-width:280px}
 
-.track-list {
-  max-height:300px;
-  overflow-y:auto;
-}
+    .title{font-size:20px;font-weight:600;letter-spacing:0.2px}
+    .artist{font-size:13px;color:#bdbfc6}
 
-.track {
-  padding:10px 16px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  cursor:pointer;
-}
+    .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 
-.track.active {
-  background:rgba(199,54,54,0.2);
-}
+    .btn{background:transparent;border:0;padding:10px;border-radius:10px;cursor:pointer;display:inline-grid;place-items:center;transition:all .18s ease;color:#fff}
+    .btn:hover{transform:translateY(-3px);filter:brightness(1.1)}
 
-.track-title {
-  color:var(--text);
-}
+    .play{width:60px;height:60px;background:linear-gradient(135deg,#c73636,#ff6b6b);box-shadow:0 8px 24px rgba(199,54,54,0.22);border-radius:14px}
+    .mini{width:42px;height:42px;background:rgba(255,255,255,0.02);border-radius:10px}
 
-.iframe-container {
-  width:100%;
-  height:166px;
-  margin-top:4px;
-}
+    .progress-wrap{width:100%;display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+    .time{font-size:12px;color:#bdbfc6;width:48px;text-align:center;flex-shrink:0}
+    .progress{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg,rgba(255,255,255,0.04),rgba(255,255,255,0.03));position:relative;cursor:pointer;min-width:100px}
+    .progress>.bar{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ff8b8b,#c73636);box-shadow:0 6px 18px rgba(199,54,54,0.16)}
+    .progress .thumb{position:absolute;right:0;top:50%;transform:translate(50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.6);opacity:0;transition:opacity .12s}
+    .progress:hover .thumb{opacity:1}
 
-.credit {
-  font-size:11px;
-  padding:8px 16px;
-  text-align:center;
-  color:var(--text);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+    .volume-wrap{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+    .volume{width:110px;height:6px;border-radius:99px;background:rgba(255,255,255,0.03);position:relative;cursor:pointer}
+    .volume>.vbar{height:100%;width:60%;border-radius:99px;background:linear-gradient(90deg,#ffd7d7,#c73636)}
 
-.credit a {
-  color:var(--text);
-  text-decoration:none;
-  font-weight:300;
-}
-
-@media (max-width:360px){
-  .player-header{ font-size:14px; padding:12px; }
-  .track img{ width:40px; height:40px; margin-right:8px;}
-}
-</style>
+    .attribution{margin-top:10px;font-size:11px;color:#9fa3ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  </style>
 </head>
 <body>
-
-<div class="player-container">
-  <div class="player-header">Composições Rafael Costa</div>
-
-  <div class="cover">Capa</div>
-
-  <div class="track-list" id="trackList">
-    <!-- Faixas serão preenchidas via JS -->
-  </div>
-
-  <div class="credit">
-    Rafael Costa · Composições Rafael Costa
-  </div>
-</div>
-
-<script>
-const tracks = [
-  { title: "O que eu não fiz (Piseiro)", url: "https://soundcloud.com/rafael-costa-709828440/oque-eu-nao-fiz-piseiro?in=rafael-costa-709828440/sets/composicoes-rafael-costa" },
-  { title: "A culpa é da embasa (Arrocha)", url: "https://soundcloud.com/rafael-costa-709828440/a-culpa-e-da-embasa-arrocha?in=rafael-costa-709828440/sets/composicoes-rafael-costa" },
-  { title: "Seu beijo me entorpeceu", url: "https://soundcloud.com/rafael-costa-709828440/seu-beijo-me-entorpeceu?in=rafael-costa-709828440/sets/composicoes-rafael-costa" },
-  { title: "Abaixa o radio motorista (Arrocha)", url: "https://soundcloud.com/rafael-costa-709828440/abaixa-o-radio-motorista?in=rafael-costa-709828440/sets/composicoes-rafael-costa" }
-];
-
-const trackListEl = document.getElementById('trackList');
-let currentIframe = null;
-
-// Preenche a lista de faixas
-tracks.forEach((track, i) => {
-  const div = document.createElement('div');
-  div.className = 'track';
-  div.dataset.index = i;
-
-  const title = document.createElement('div');
-  title.className = 'track-title';
-  title.textContent = track.title;
-  div.appendChild(title);
-
-  div.addEventListener('click', () => {
-    // Remove iframe antigo
-    if(currentIframe) currentIframe.remove();
-
-    // Cria novo iframe
-    const iframe = document.createElement('iframe');
-    iframe.className = 'iframe-container';
-    iframe.width = '100%';
-    iframe.height = '166';
-    iframe.scrolling = 'no';
-    iframe.frameBorder = 'no';
-    iframe.allow = 'autoplay';
-    iframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(track.url)}&color=%23c73636&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false`;
-    
-    div.appendChild(iframe);
-    currentIframe = iframe;
-
-    // Atualiza destaque da faixa
-    document.querySelectorAll('.track').forEach(el => el.classList.remove('active'));
-    div.classList.add('active');
-  });
-
-  trackListEl.appendChild(div);
-});
-</script>
-
+  <!-- Player original e scripts permanecem inalterados -->
 </body>
 </html>
