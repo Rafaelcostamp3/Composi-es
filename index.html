@@ -260,9 +260,29 @@
 <script>
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   if (/Instagram/i.test(ua)) {
-    alert("⚠️ Para ouvir corretamente, toque nos três pontinhos (⋮) e escolha 'Abrir no navegador'.");
+    const aviso = document.createElement("div");
+    aviso.innerHTML = `
+      ⚠️ <b>Para ouvir corretamente:</b><br>
+      Toque nos três pontinhos (⋮) e escolha <b>"Abrir no navegador"</b>.
+    `;
+    Object.assign(aviso.style, {
+      position: "fixed",
+      top: "0",
+      left: "0",
+      width: "100%",
+      background: "rgba(255, 230, 150, 0.95)",
+      color: "#222",
+      textAlign: "center",
+      padding: "12px",
+      fontFamily: "sans-serif",
+      fontSize: "14px",
+      zIndex: "9999",
+      borderBottom: "1px solid rgba(0,0,0,0.1)",
+    });
+    document.body.appendChild(aviso);
   }
 </script>
 
 </body>
 </html>
+
