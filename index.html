@@ -257,43 +257,20 @@
     });
   </script>
 <script>
-(function() {
-  // A detecção precisa rodar cedo e também após o load completo
-  function checkInAppBrowser() {
-    const ua = navigator.userAgent || '';
-    if (ua.match(/Instagram|FBAN|FBAV|Messenger/i)) {
-      const aviso = document.createElement('div');
-      aviso.innerHTML = `
-        ⚠️ <b>Para ouvir corretamente:</b><br>
-        Toque nos três pontinhos (⋮) e escolha <b>"Abrir no navegador"</b>.
-      `;
-      Object.assign(aviso.style, {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: 'rgba(255, 245, 200, 0.97)',
-        color: '#222',
-        textAlign: 'center',
-        padding: '16px',
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: '15px',
-        lineHeight: '1.4',
-        zIndex: 999999,
-        borderBottom: '1px solid rgba(0,0,0,0.1)',
-      });
-      document.body.appendChild(aviso);
-    }
-  }
-
-  // Rodar imediatamente e também depois do load
-  checkInAppBrowser();
-  window.addEventListener('load', checkInAppBrowser);
-})();
+document.addEventListener("DOMContentLoaded", function() {
+  const ua = navigator.userAgent || "Desconhecido";
+  document.body.innerHTML = `
+    <div style="font-family:monospace;padding:20px">
+      <h3>User Agent detectado:</h3>
+      <p>${ua}</p>
+    </div>
+  `;
+});
 </script>
 
 </body>
 </html>
+
 
 
 
