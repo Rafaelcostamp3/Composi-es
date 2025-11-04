@@ -257,39 +257,43 @@
     });
   </script>
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    const isInstagram = ua.includes("Instagram");
-    const isFBApp = ua.includes("FBAN") || ua.includes("FBAV");
-    const isMessenger = ua.includes("Messenger");
-
-    if (isInstagram || isFBApp || isMessenger) {
-      const aviso = document.createElement("div");
+(function() {
+  // A detecção precisa rodar cedo e também após o load completo
+  function checkInAppBrowser() {
+    const ua = navigator.userAgent || '';
+    if (ua.match(/Instagram|FBAN|FBAV|Messenger/i)) {
+      const aviso = document.createElement('div');
       aviso.innerHTML = `
         ⚠️ <b>Para ouvir corretamente:</b><br>
         Toque nos três pontinhos (⋮) e escolha <b>"Abrir no navegador"</b>.
       `;
       Object.assign(aviso.style, {
-        position: "fixed",
-        top: "0",
-        left: "0",
-        width: "100%",
-        background: "rgba(255, 230, 150, 0.95)",
-        color: "#222",
-        textAlign: "center",
-        padding: "14px",
-        fontFamily: "system-ui, sans-serif",
-        fontSize: "15px",
-        lineHeight: "1.4",
-        zIndex: "999999",
-        borderBottom: "1px solid rgba(0,0,0,0.15)",
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        background: 'rgba(255, 245, 200, 0.97)',
+        color: '#222',
+        textAlign: 'center',
+        padding: '16px',
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '15px',
+        lineHeight: '1.4',
+        zIndex: 999999,
+        borderBottom: '1px solid rgba(0,0,0,0.1)',
       });
       document.body.appendChild(aviso);
     }
-  });
+  }
+
+  // Rodar imediatamente e também depois do load
+  checkInAppBrowser();
+  window.addEventListener('load', checkInAppBrowser);
+})();
 </script>
 
 </body>
 </html>
+
 
 
