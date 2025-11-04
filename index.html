@@ -40,7 +40,6 @@ body {
   font-size:16px;
   font-weight:600;
   border-bottom:1px solid rgba(255,255,255,0.1);
-  background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
 }
 
 .cover {
@@ -56,24 +55,14 @@ body {
 }
 
 .track-list {
-  max-height:250px;
+  max-height:300px;
   overflow-y:auto;
 }
 
 .track {
-  display:flex;
-  align-items:center;
   padding:10px 16px;
   border-bottom:1px solid rgba(255,255,255,0.05);
   cursor:pointer;
-}
-
-.track img {
-  width:50px;
-  height:50px;
-  border-radius:8px;
-  margin-right:12px;
-  object-fit:cover;
 }
 
 .track.active {
@@ -81,52 +70,13 @@ body {
 }
 
 .track-title {
-  flex:1;
+  color:var(--text);
 }
 
-.controls {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px 16px;
-  background:rgba(0,0,0,0.1);
-}
-
-.controls button {
-  background:var(--accent);
-  border:none;
-  border-radius:50%;
-  width:40px;
-  height:40px;
-  color:white;
-  font-size:18px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:transform 0.2s;
-}
-
-.controls button:hover {
-  transform:scale(1.1);
-}
-
-.progress-bar {
-  flex:1;
-  height:6px;
-  background:rgba(255,255,255,0.2);
-  border-radius:3px;
-  margin:0 12px;
-  position:relative;
-  overflow:hidden;
-}
-
-.progress-bar-inner {
-  height:100%;
-  width:0%;
-  background:var(--accent);
-  border-radius:3px;
-  transition:width 0.1s linear;
+.iframe-container {
+  width:100%;
+  height:166px;
+  margin-top:4px;
 }
 
 .credit {
@@ -147,7 +97,6 @@ body {
 
 @media (max-width:360px){
   .player-header{ font-size:14px; padding:12px; }
-  .controls button{ width:36px; height:36px; font-size:16px; }
   .track img{ width:40px; height:40px; margin-right:8px;}
 }
 </style>
@@ -163,15 +112,6 @@ body {
     <!-- Faixas serão preenchidas via JS -->
   </div>
 
-  <div class="controls">
-    <button id="prev">&#9664;</button>
-    <button id="playPause">&#9658;</button>
-    <button id="next">&#9654;</button>
-    <div class="progress-bar">
-      <div class="progress-bar-inner" id="progress"></div>
-    </div>
-  </div>
-
   <div class="credit">
     Rafael Costa · Composições Rafael Costa
   </div>
@@ -179,90 +119,50 @@ body {
 
 <script>
 const tracks = [
-  { title: "O que eu não fiz (Piseiro)", src: "https://soundcloud.com/rafael-costa-709828440/oque-eu-nao-fiz-piseiro?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=64f7fda9d89c4d5180c8c313187237d0&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" },
-  { title: "A culpa é da embasa (Arrocha)", src: "https://soundcloud.com/rafael-costa-709828440/a-culpa-e-da-embasa-arrocha?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=2a6be1e6da934e60995c1909afea055e&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" },
-  { title: "Seu beijo me entorpeceu", src: "https://soundcloud.com/rafael-costa-709828440/seu-beijo-me-entorpeceu?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=77fab0ff78184c738acad0a3078f4bfa&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" },
-  { title: "Abaixa o radio motorista (Arrocha)", src: "https://soundcloud.com/rafael-costa-709828440/abaixa-o-radio-motorista?in=rafael-costa-709828440/sets/composicoes-rafael-costa&si=fac0e155e2344ea085697e6361f98ed7&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" }
+  { title: "O que eu não fiz (Piseiro)", url: "https://soundcloud.com/rafael-costa-709828440/oque-eu-nao-fiz-piseiro?in=rafael-costa-709828440/sets/composicoes-rafael-costa" },
+  { title: "A culpa é da embasa (Arrocha)", url: "https://soundcloud.com/rafael-costa-709828440/a-culpa-e-da-embasa-arrocha?in=rafael-costa-709828440/sets/composicoes-rafael-costa" },
+  { title: "Seu beijo me entorpeceu", url: "https://soundcloud.com/rafael-costa-709828440/seu-beijo-me-entorpeceu?in=rafael-costa-709828440/sets/composicoes-rafael-costa" },
+  { title: "Abaixa o radio motorista (Arrocha)", url: "https://soundcloud.com/rafael-costa-709828440/abaixa-o-radio-motorista?in=rafael-costa-709828440/sets/composicoes-rafael-costa" }
 ];
 
-let currentTrack = 0;
-let isPlaying = false;
-
 const trackListEl = document.getElementById('trackList');
-const playPauseBtn = document.getElementById('playPause');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
-const progressEl = document.getElementById('progress');
+let currentIframe = null;
 
-const audio = new Audio();
-audio.src = tracks[currentTrack].src;
-
-// Preenche lista de faixas com miniaturas genéricas
+// Preenche a lista de faixas
 tracks.forEach((track, i) => {
   const div = document.createElement('div');
   div.className = 'track';
   div.dataset.index = i;
-
-  const img = document.createElement('img');
-  img.src = 'https://via.placeholder.com/50?text=🎵'; // placeholder da capa
-  div.appendChild(img);
 
   const title = document.createElement('div');
   title.className = 'track-title';
   title.textContent = track.title;
   div.appendChild(title);
 
-  div.addEventListener('click', () => playTrack(i));
+  div.addEventListener('click', () => {
+    // Remove iframe antigo
+    if(currentIframe) currentIframe.remove();
+
+    // Cria novo iframe
+    const iframe = document.createElement('iframe');
+    iframe.className = 'iframe-container';
+    iframe.width = '100%';
+    iframe.height = '166';
+    iframe.scrolling = 'no';
+    iframe.frameBorder = 'no';
+    iframe.allow = 'autoplay';
+    iframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(track.url)}&color=%23c73636&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false`;
+    
+    div.appendChild(iframe);
+    currentIframe = iframe;
+
+    // Atualiza destaque da faixa
+    document.querySelectorAll('.track').forEach(el => el.classList.remove('active'));
+    div.classList.add('active');
+  });
+
   trackListEl.appendChild(div);
 });
-
-function updateTrackList() {
-  document.querySelectorAll('.track').forEach((el, i) => {
-    el.classList.toggle('active', i === currentTrack);
-  });
-}
-
-function playTrack(index) {
-  currentTrack = index;
-  audio.src = tracks[currentTrack].src;
-  audio.play();
-  isPlaying = true;
-  updatePlayButton();
-  updateTrackList();
-}
-
-function togglePlay() {
-  if(isPlaying) audio.pause();
-  else audio.play();
-  isPlaying = !isPlaying;
-  updatePlayButton();
-}
-
-function updatePlayButton() {
-  playPauseBtn.textContent = isPlaying ? '❚❚' : '▶';
-}
-
-function nextTrack() {
-  currentTrack = (currentTrack + 1) % tracks.length;
-  playTrack(currentTrack);
-}
-
-function prevTrack() {
-  currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
-  playTrack(currentTrack);
-}
-
-playPauseBtn.addEventListener('click', togglePlay);
-nextBtn.addEventListener('click', nextTrack);
-prevBtn.addEventListener('click', prevTrack);
-
-audio.addEventListener('timeupdate', () => {
-  if(audio.duration) progressEl.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
-});
-
-audio.addEventListener('ended', nextTrack);
-
-updateTrackList();
 </script>
 
 </body>
