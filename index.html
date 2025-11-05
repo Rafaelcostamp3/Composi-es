@@ -14,11 +14,13 @@
       font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
       background:linear-gradient(180deg,#0f0f10 0%, #121217 100%);
       color:#e9e9ea;
+      flex-direction:column;
+      gap:20px;
     }
 
     .sc-player-wrap{
       max-width:900px;
-      margin:40px auto;
+      margin:40px auto 0;
       padding:24px;
       background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
       border-radius:16px;
@@ -28,6 +30,7 @@
       align-items:center;
       transition:all .3s ease;
       min-height:160px;
+      position:relative;
     }
 
     .sc-art{
@@ -54,6 +57,73 @@
     .play{width:60px;height:60px;background:linear-gradient(135deg,#c73636,#ff6b6b);box-shadow:0 8px 24px rgba(199,54,54,0.22);border-radius:14px}
     .mini{width:42px;height:42px;background:rgba(255,255,255,0.02);border-radius:10px}
 
+    /* --- Instrução animada (apenas mobile/tablet menores) --- */
+    @media (max-width: 900px){
+      .instruction {
+        position:fixed;
+        top:16px;
+        right:16px;
+        background:rgba(255,255,255,0.08);
+        padding:10px 14px;
+        border-radius:10px;
+        font-size:14px;
+        color:#fff;
+        animation:fadeInOut 8s ease-in-out forwards;
+        backdrop-filter:blur(10px);
+        z-index:999;
+      }
+
+      @keyframes fadeInOut {
+        0% {opacity:0; transform:translateY(-10px);}
+        10% {opacity:1; transform:translateY(0);}
+        70% {opacity:1;}
+        100% {opacity:0; transform:translateY(-10px);}
+      }
+    }
+
+    /* Oculta em telas maiores */
+    @media (min-width: 901px){
+      .instruction{display:none!important;}
+    }
+
+    /* --- Seção inferior com botão WhatsApp --- */
+    .footer-msg{
+      font-size:14px;
+      color:#c1c1c3;
+      text-align:center;
+      margin-top:6px;
+    }
+    .whatsapp-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:linear-gradient(135deg,#25D366,#128C7E);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:8px 14px;
+      font-size:14px;
+      cursor:pointer;
+      transition:all .2s ease;
+      margin-top:6px;
+    }
+    .whatsapp-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+
+    /* --- Botão de compartilhamento --- */
+    .share-btn{
+      position:absolute;
+      top:14px;
+      left:14px;
+      background:rgba(255,255,255,0.06);
+      border:none;
+      border-radius:8px;
+      padding:8px 10px;
+      cursor:pointer;
+      transition:all .2s ease;
+      color:#fff;
+    }
+    .share-btn:hover{transform:translateY(-2px);filter:brightness(1.2)}
+
     @media (max-width:600px){
       .sc-player-wrap{flex-direction:column;align-items:center;padding:18px}
       .sc-art{width:160px;height:160px}
@@ -63,7 +133,20 @@
 </head>
 <body>
 
+  <!-- Instrução animada (só aparece em telas pequenas) -->
+  <div class="instruction">
+    Toque nos <strong>três pontinhos</strong> e selecione “Abrir no navegador”.
+  </div>
+
   <div class="sc-player-wrap" role="region" aria-label="SoundCloud player">
+    
+    <!-- Botão de compartilhamento -->
+    <button class="share-btn" id="share-btn" title="Compartilhar este player">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3.07 3.07 0 0 0 0-1.39l7.02-4.11A2.99 2.99 0 1 0 14 5a3 3 0 0 0 2.91 3.17l-7.02 4.11a3.07 3.07 0 0 0 0 1.39l7.13 4.18A3 3 0 1 0 18 16.08z"/>
+      </svg>
+    </button>
+
     <div class="sc-art" id="sc-art">
       <svg width="90" height="90" viewBox="0 0 24 24" fill="none" style="opacity:.06">
         <path d="M12 2C7 2 3.4 5.6 3.4 10.2c0 3 1.7 5.6 4.4 7.1L12 22l4.2-4.7c2.7-1.5 4.4-4.1 4.4-7.1C20.6 5.6 17 2 12 2z" fill="currentColor"/>
@@ -74,8 +157,9 @@
       <div class="title" id="sc-title">Carregando música...</div>
 
       <div class="controls">
+        <!-- Corrigido: ícones das setas agora estão no sentido correto -->
         <button class="btn mini" id="btn-prev" title="Anterior">
-          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6v12l8.5-6L6 6zM18 6v12h-2V6h2z" fill="currentColor"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6v12h2V6H6zm3.5 6l8.5 6V6l-8.5 6z" fill="currentColor"/></svg>
         </button>
 
         <button class="btn play" id="btn-play" aria-label="Play/Pause">
@@ -84,10 +168,23 @@
         </button>
 
         <button class="btn mini" id="btn-next" title="Próxima">
-          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6v12l-8.5-6L18 6zM6 6v12H4V6h2z" fill="currentColor"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6v12h-2V6h2zm-3.5 6L6 18V6l8.5 6z" fill="currentColor"/></svg>
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Seção inferior com WhatsApp -->
+  <div class="footer-msg">
+    Interesse na liberação ou exclusividade de alguma dessas músicas?<br>
+    <button class="whatsapp-btn" id="whatsapp-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16.707 14.328c-.278-.139-1.643-.812-1.897-.904-.254-.093-.439-.139-.625.14-.186.278-.717.904-.878 1.09-.162.186-.324.209-.602.07-.278-.139-1.173-.433-2.234-1.38-.826-.735-1.382-1.64-1.545-1.918-.162-.278-.017-.429.122-.567.125-.124.278-.324.417-.486.14-.162.186-.278.278-.463.093-.186.047-.349-.023-.487-.07-.139-.625-1.507-.857-2.064-.226-.543-.456-.47-.625-.479-.162-.008-.349-.01-.536-.01-.186 0-.487.07-.74.349s-.97.948-.97 2.312.994 2.68 1.131 2.865c.139.186 1.956 2.986 4.742 4.184.663.286 1.181.456 1.584.583.665.212 1.27.182 1.748.11.533-.08 1.643-.672 1.876-1.32.232-.648.232-1.204.162-1.32-.07-.116-.254-.186-.532-.325z"/>
+      </svg>
+      Fale no WhatsApp
+    </button>
+    <!-- INSIRA SEU NÚMERO AQUI ↓ -->
+    <!-- Exemplo: const whatsappNumber = '5511957905049'; -->
   </div>
 
   <iframe id="sc-player-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
@@ -105,6 +202,8 @@
     const btnNext = document.getElementById('btn-next');
     const scArt = document.getElementById('sc-art');
     const scTitle = document.getElementById('sc-title');
+    const shareBtn = document.getElementById('share-btn');
+    const whatsappBtn = document.getElementById('whatsapp-btn');
     let isPlaying = false;
 
     // Atualiza título e capa da faixa atual
@@ -120,31 +219,41 @@
       });
     }
 
-    // Carrega automaticamente ao inicializar
-    widget.bind(SC.Widget.Events.READY, function() {
-      updateTrackInfo();
-    });
-
-    widget.bind(SC.Widget.Events.PLAY, function(){
-      isPlaying = true; toggleIcons();
-      updateTrackInfo();
-    });
-
-    widget.bind(SC.Widget.Events.PAUSE, function(){ isPlaying = false; toggleIcons(); });
-    widget.bind(SC.Widget.Events.FINISH, function(){ isPlaying = false; toggleIcons(); });
+    widget.bind(SC.Widget.Events.READY, updateTrackInfo);
+    widget.bind(SC.Widget.Events.PLAY, () => { isPlaying = true; toggleIcons(); updateTrackInfo(); });
+    widget.bind(SC.Widget.Events.PAUSE, () => { isPlaying = false; toggleIcons(); });
+    widget.bind(SC.Widget.Events.FINISH, () => { isPlaying = false; toggleIcons(); });
 
     function toggleIcons(){
-      if(isPlaying){ iconPlay.style.display='none'; iconPause.style.display='block'; }
-      else{ iconPlay.style.display='block'; iconPause.style.display='none'; }
+      iconPlay.style.display = isPlaying ? 'none' : 'block';
+      iconPause.style.display = isPlaying ? 'block' : 'none';
     }
 
-    btnPlay.addEventListener('click', function(){
-      widget.isPaused(function(paused){ if(paused) widget.play(); else widget.pause(); });
+    btnPlay.addEventListener('click', ()=>{ widget.isPaused(p=> p ? widget.play() : widget.pause()); });
+    btnPrev.addEventListener('click', ()=>{ widget.prev(); });
+    btnNext.addEventListener('click', ()=>{ widget.next(); });
+
+    // Compartilhar player
+    shareBtn.addEventListener('click', async ()=>{
+      const shareData = {
+        title: 'Portfólio - Composições',
+        text: 'Ouça minhas composições no SoundCloud:',
+        url: window.location.href
+      };
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        alert('Não foi possível compartilhar neste dispositivo.');
+      }
     });
 
-    btnPrev.addEventListener('click', function(){ widget.prev(); });
-    btnNext.addEventListener('click', function(){ widget.next(); });
+    // Botão WhatsApp
+    whatsappBtn.addEventListener('click', ()=>{
+      // INSIRA SEU NÚMERO AQUI ↓
+      const whatsappNumber = '5511957905049';
+      const message = encodeURIComponent('Olá! Tenho interesse em uma das suas composições.');
+      window.open(`https://wa.me/${whatsappNumber}?text=${message}`,'_blank');
+    });
   </script>
 </body>
 </html>
-
